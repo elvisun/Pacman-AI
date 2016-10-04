@@ -305,7 +305,7 @@ class CornersProblem(search.SearchProblem):
      required to get there, and 'stepCost' is the incremental 
      cost of expanding to that successor
     """
-    print state
+    #print state
     x = state[0][0]
     y = state[0][1]
 

@@ -146,6 +146,7 @@ def breadthFirstSearch(problem):
   q.insert(0, problem.getStartState())
   print ''
   while len(q):
+    #print explored
     targetFound = False
     node = q.pop()
     explored[(node[0],node[3])] = True
