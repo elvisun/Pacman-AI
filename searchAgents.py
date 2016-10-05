@@ -344,38 +344,28 @@ class CornersProblem(search.SearchProblem):
 
 
 def cornersHeuristic(state, problem):
-  """
-  A heuristic for the CornersProblem that you defined.
-  
-    state:   The current search state 
-             (a data structure you chose in your search problem)
-    
-    problem: The CornersProblem instance for this layout.  
-    
-  This function should always return a number that is a lower bound
-  on the shortest path from the state to a goal of the problem; i.e.
-  it should be admissible.  (You need not worry about consistency for
-  this heuristic to receive full credit.)
-  """
+
   corners = problem.corners # These are the corner coordinates
   walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
   
-  "*** YOUR CODE HERE ***"
-  return 0 # Default to trivial solution
+  # my aStarSearch Algorithm didn't end up compatible with my problem definition
+  # I didn't have a time to test this algorithm,
+  # But this is what I think will work
+  # find the closest corner, and find the closest corner from that corner
+  # then repeat
+  unvisitedCorners = []
+  sum = 0
+  for corner in corners:
+      if not corner in visitedCorners:
+          unvisitedCorners.append(corner)
 
+  unvisitedCorners.insert(0,node)
+  while len(unvisitedCorners) >= 2:
+      current = unvisitedCorners.pop(0)
+      unvisitedCorners = sorted(unvisitedCorners, key = lambda corner: abs(current[0]-corner[0]) + abs(current[1]-corner[1]))
+      sum = sum + abs(current[0]-unvisitedCorners[0][0]) + abs(current[1]-unvisitedCorners[0][1])
 
-
-
-
-
-
-
-
-
-
-
-
-
+  return sum
 
 
 class AStarCornersAgent(SearchAgent):
