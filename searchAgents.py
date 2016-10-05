@@ -299,7 +299,7 @@ class CornersProblem(search.SearchProblem):
     Returns successor states, the actions they require, and a cost of 1.
     
      As noted in search.py:
-         For a given state, this should return a list of triples, 
+     For a given state, this should return a list of triples, 
      (successor, action, stepCost), where 'successor' is a 
      successor to the current state, 'action' is the action
      required to get there, and 'stepCost' is the incremental 
@@ -311,7 +311,6 @@ class CornersProblem(search.SearchProblem):
 
     successors = []
     for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-
         dx, dy = Actions.directionToVector(action)
         nextx, nexty = int(x + dx), int(y + dy)
         hitsWall = self.walls[nextx][nexty]
@@ -321,7 +320,8 @@ class CornersProblem(search.SearchProblem):
             if next_node in self.corners:
                 if not next_node in successorVisitedCorners:
                     successorVisitedCorners.append( next_node )
-            successor = (next_node, action, tuple(sorted(successorVisitedCorners)))
+            #convert back to tuple so it can be pushed into a dictionary
+            successor = (next_node, action, tuple(sorted(successorVisitedCorners))) 
             successors.append(successor)
       
     "*** YOUR CODE HERE ***"
@@ -345,27 +345,22 @@ class CornersProblem(search.SearchProblem):
 
 def cornersHeuristic(state, problem):
 
-  corners = problem.corners # These are the corner coordinates
+  corners = list(problem.corners) # These are the corner coordinates
   walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
   
-  # my aStarSearch Algorithm didn't end up compatible with my problem definition
-  # I didn't have a time to test this algorithm,
-  # But this is what I think will work
-  # find the closest corner, and find the closest corner from that corner
-  # then repeat
-  unvisitedCorners = []
-  sum = 0
-  for corner in corners:
-      if not corner in visitedCorners:
-          unvisitedCorners.append(corner)
+  coord = state[0]
+  visitedCorners = list(state[1])
+  totalDist = 0
 
-  unvisitedCorners.insert(0,node)
-  while len(unvisitedCorners) >= 2:
-      current = unvisitedCorners.pop(0)
-      unvisitedCorners = sorted(unvisitedCorners, key = lambda corner: abs(current[0]-corner[0]) + abs(current[1]-corner[1]))
-      sum = sum + abs(current[0]-unvisitedCorners[0][0]) + abs(current[1]-unvisitedCorners[0][1])
+  for each in corners:
+    if not each in visitedCorners:
+      totalDist = totalDist + abs(each[0] - coord[0]) + abs(each[1] - coord[1])
+  return totalDist
+  
 
-  return sum
+  #return 0  #--> 1982 nodes expanded
+
+
 
 
 class AStarCornersAgent(SearchAgent):

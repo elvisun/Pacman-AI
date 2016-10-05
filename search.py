@@ -138,111 +138,140 @@ def depthFirstSearch(problem):
 
 
 def breadthFirstSearch(problem):
-  nextState = (problem.getStartState(),0,0)
-  explored = {}
-  childMap = {}
-  q = []
-  route = []
-  q.insert(0, problem.getStartState())
-  print ''
-  while len(q):
+  # if its a corner problem
+  if hasattr(problem,'corners'):
+    nextState = (problem.getStartState(),0,0)
+    explored = {}
+    childMap = {}
+    q = []
+    route = []
+    q.insert(0, problem.getStartState())
+    print ''
+    while len(q):
+      #print explored
+      targetFound = False
+      node = q.pop()
+      explored[(node[0],node[2])] = True
+      for child in problem.getSuccessors(node):
+        if not (child[0],child[2]) in explored:
+          childMap[child] = node
+          q.insert(0,child)
+          explored[(child[0],child[2])] = True
+          if problem.isGoalState(child):
+            targetFound = True
+            break
+      if targetFound:
+        break
     #print explored
-    targetFound = False
-    node = q.pop()
-    explored[(node[0],node[2])] = True
-    for child in problem.getSuccessors(node):
-      if not (child[0],child[2]) in explored:
-        childMap[child] = node
-        q.insert(0,child)
-        explored[(child[0],child[2])] = True
-        if problem.isGoalState(child):
-          targetFound = True
-          break
-    if targetFound:
-      break
-  #print explored
-  parent = q[0]
-  while parent in childMap:
-    route.append(parent)
-    parent = childMap[parent]
+    parent = q[0]
+    while parent in childMap:
+      route.append(parent)
+      parent = childMap[parent]
 
-  #print route
-  #print len(route)
-  route = route[::-1]
-  
+    #print route
+    #print len(route)
+    route = route[::-1]
+    
 
-  s = Directions.SOUTH
-  w = Directions.WEST
-  e = Directions.EAST
-  n = Directions.NORTH
+    s = Directions.SOUTH
+    w = Directions.WEST
+    e = Directions.EAST
+    n = Directions.NORTH
 
-  returningList = []
-  for r in route:
-    direction = r[1]
-    #print direction
-    if direction == 'West':
-      returningList.append(w)
-    if direction == 'East':
-      returningList.append(e)
-    if direction == 'North':
-      returningList.append(n)
-    if direction == 'South':
-      returningList.append(s)
-  return returningList
+    returningList = []
+    for r in route:
+      direction = r[1]
+      #print direction
+      if direction == 'West':
+        returningList.append(w)
+      if direction == 'East':
+        returningList.append(e)
+      if direction == 'North':
+        returningList.append(n)
+      if direction == 'South':
+        returningList.append(s)
+    return returningList
+  #if its a regular problem
+  else:
+    nextState = (problem.getStartState(),0,0)
+    explored = {}
+    childMap = {}
+    q = []
+    route = []
+    q.insert(0, nextState)
+    print ''
+    while len(q):
+      #print explored
+      targetFound = False
+      node = q.pop()
+      explored[node] = True
+      #print node
+      for child in problem.getSuccessors(node[0]):
+        if not (child) in explored:
+          childMap[child] = node
+          q.insert(0,child)
+          explored[child] = True
+          #print child
+          if problem.isGoalState(child[0]):
+            targetFound = True
+            break
+      if targetFound:
+        break
+
+    parent = q[0]
+    while parent in childMap:
+      route.append(parent)
+      parent = childMap[parent]
+
+    #print route
+    #print len(route)
+    route = route[::-1]
+    
+
+    s = Directions.SOUTH
+    w = Directions.WEST
+    e = Directions.EAST
+    n = Directions.NORTH
+
+    returningList = []
+    for r in route:
+      direction = r[1]
+      #print direction
+      if direction == 'West':
+        returningList.append(w)
+      if direction == 'East':
+        returningList.append(e)
+      if direction == 'North':
+        returningList.append(n)
+      if direction == 'South':
+        returningList.append(s)
+    return returningList
   util.raiseNotDefined()
       
 def uniformCostSearch(problem):
 
-  nextState = (problem.getStartState(),0,0)
+  Q = util.PriorityQueue()
   explored = {}
   route = []
-  print ''
-  while not problem.isGoalState(nextState[0]):
-    foundNext = False
-    frontier = problem.getSuccessors(nextState[0])
-    frontier = sorted(frontier, key = lambda k: k[2], reverse = True)
-    for each in frontier:
-      if not each[0] in explored:
-        route.append(nextState)
-        explored[each[0]] = True
-        nextState = each
-        foundNext = True
-        break
+  startingPosition = problem.getStartState()
+  Q.push((startingPosition, []), 0)
 
-    if foundNext:
-      continue
+  while not Q.isEmpty():
+    nextNode = Q.pop()
+    node = nextNode[0]
+    directions = nextNode[1]
+    #print node,directions
+    if problem.isGoalState(node):
+        return directions
 
-    if not len(route):
-      break
-    nextState = route.pop()
-    #stack.extend(problem.getSuccessors(nextState[0]))
+    explored[node] = True
+    for coord, direction, cost in problem.getSuccessors(node):
+        if not coord in explored:
+            newDirection = directions + [direction]
+            score = problem.getCostOfActions(newDirection)
+            Q.push((coord, newDirection), score)
 
-  print route
-  print len(route)
-  print nextState
-
-  route.append(nextState)
-  s = Directions.SOUTH
-  w = Directions.WEST
-  e = Directions.EAST
-  n = Directions.NORTH
-
-  returningList = []
-  for r in route[1:]:
-    direction = r[1]
-    #print direction
-    if direction == 'West':
-      returningList.append(w)
-    if direction == 'East':
-      returningList.append(e)
-    if direction == 'North':
-      returningList.append(n)
-    if direction == 'South':
-      returningList.append(s)
-  
-
-  return returningList
-  "Search the node of least total cost first. "
+  return []
   "*** YOUR CODE HERE ***"
   util.raiseNotDefined()
 
@@ -279,26 +308,61 @@ def nullHeuristic(state, problem=None):
 #   util.raiseNotDefined()
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-  Q = util.PriorityQueue()
-  explored = {}
-  route = []
-  startingPosition = problem.getStartState()
-  Q.push((startingPosition, []), heuristic(startingPosition, problem))
+  #for corner problem
+  if hasattr(problem,'corners'):
 
-  while not Q.isEmpty():
-    node, directions = Q.pop()
-    #print node,directions
-    if problem.isGoalState(node):
-        return directions
+    Q = util.PriorityQueue()
+    explored = {}
+    route = []
+    startingPosition = problem.getStartState()[0]
+    Q.push((startingPosition, [],0, ()), heuristic((startingPosition,()), problem))
 
-    explored[node] = True
-    for coord, direction, cost in problem.getSuccessors(node):
-        if not coord in explored:
-            newDirection = directions + [direction]
-            score = problem.getCostOfActions(newDirection) + heuristic(coord, problem)
-            Q.push((coord, newDirection), score)
+    while not Q.isEmpty():
+      #print '===='
+      nextNode = Q.pop()
+      #print nextNode
+      node = nextNode[0]
+      directions = nextNode[1]
+      #print node,directions
+      if problem.isGoalState((nextNode[0],0,nextNode[3])):
+          return directions
 
-  return []
+      #print nextNode
+      #print problem.getSuccessors((node,0, nextNode[3]))
+      explored[(nextNode[0],nextNode[3])] = True
+      for coord, direction, visitedCorners in problem.getSuccessors((node,0, nextNode[3])):
+          if not (coord,visitedCorners) in explored:
+              newDirection = directions + [direction]
+              score = problem.getCostOfActions(newDirection) + heuristic((coord,visitedCorners), problem)
+              x = (coord, newDirection, score, visitedCorners)
+              explored[(coord,visitedCorners)] = True
+              Q.push(x, score)
+    return []
+
+
+  else:
+    Q = util.PriorityQueue()
+    explored = {}
+    route = []
+    startingPosition = problem.getStartState()
+    Q.push((startingPosition, []), heuristic(startingPosition, problem))
+
+    while not Q.isEmpty():
+      nextNode = Q.pop()
+      node = nextNode[0]
+      directions = nextNode[1]
+      #print node,directions
+      if problem.isGoalState(node):
+          return directions
+
+      explored[node] = True
+      for coord, direction, cost in problem.getSuccessors(node):
+          if not coord in explored:
+              newDirection = directions + [direction]
+              score = problem.getCostOfActions(newDirection) + heuristic(coord, problem)
+              Q.push((coord, newDirection), score)
+
+    return []
   "*** YOUR CODE HERE ***"
   util.raiseNotDefined()
     
