@@ -149,18 +149,18 @@ def breadthFirstSearch(problem):
     #print explored
     targetFound = False
     node = q.pop()
-    explored[(node[0],node[3])] = True
+    explored[(node[0],node[2])] = True
     for child in problem.getSuccessors(node):
-      #print child
-      if not (child[0],child[3]) in explored:
+      if not (child[0],child[2]) in explored:
         childMap[child] = node
         q.insert(0,child)
+        explored[(child[0],child[2])] = True
         if problem.isGoalState(child):
           targetFound = True
           break
     if targetFound:
       break
-
+  #print explored
   parent = q[0]
   while parent in childMap:
     route.append(parent)
